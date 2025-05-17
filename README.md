@@ -1,73 +1,176 @@
-# Welcome to your Lovable project
 
-## Project info
+# Notification Service
 
-**URL**: https://lovable.dev/projects/b96a5221-8140-4a1a-ab63-aad9b758a78e
+A backend service for managing and sending notifications through multiple channels (email, SMS, and in-app).
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- **Multi-channel notifications**: Support for email, SMS, and in-app notifications
+- **Queue system**: Reliable delivery with Bull and Redis
+- **Retry logic**: Exponential backoff for failed notifications (up to 3 retries)
+- **MongoDB storage**: Persistent storage for notification history
+- **RESTful API**: Clean API for sending and retrieving notifications
 
-**Use Lovable**
+## 📋 API Documentation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b96a5221-8140-4a1a-ab63-aad9b758a78e) and start prompting.
+### Create a notification
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+POST /api/notifications
 ```
 
-**Edit a file directly in GitHub**
+**Request body:**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```json
+{
+  "userId": "user123",
+  "type": "email", // "email", "sms", or "in-app"
+  "message": "Hello, this is a test notification",
+  "metadata": {
+    "subject": "Test Notification" // Optional metadata, useful for emails
+  }
+}
+```
 
-**Use GitHub Codespaces**
+**Response:**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "60d21b4967d0d8992e610c85",
+    "userId": "user123",
+    "type": "email",
+    "message": "Hello, this is a test notification",
+    "status": "pending",
+    "createdAt": "2023-06-22T10:00:00.000Z",
+    "updatedAt": "2023-06-22T10:00:00.000Z",
+    "retryCount": 0,
+    "metadata": {
+      "subject": "Test Notification"
+    }
+  }
+}
+```
 
-## What technologies are used for this project?
+### Get user notifications
 
-This project is built with:
+```
+GET /api/users/{userId}/notifications?page=1&limit=50
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**Response:**
 
-## How can I deploy this project?
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "60d21b4967d0d8992e610c85",
+      "userId": "user123",
+      "type": "in-app",
+      "message": "Hello, this is a test notification",
+      "status": "delivered",
+      "createdAt": "2023-06-22T10:00:00.000Z",
+      "updatedAt": "2023-06-22T10:00:00.000Z",
+      "retryCount": 0,
+      "metadata": {}
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "page": 1,
+    "limit": 50,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
 
-Simply open [Lovable](https://lovable.dev/projects/b96a5221-8140-4a1a-ab63-aad9b758a78e) and click on Share -> Publish.
+## 🔧 Setup and Installation
 
-## Can I connect a custom domain to my Lovable project?
+### Prerequisites
 
-Yes, you can!
+- Node.js (v14+)
+- MongoDB
+- Redis
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Environment Variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Create a `.env` file with the following variables:
+
+```
+# Server
+PORT=3000
+NODE_ENV=development
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/notification-service
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Email (optional for production)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=user@example.com
+SMTP_PASSWORD=yourpassword
+EMAIL_FROM=notifications@example.com
+
+# Logging
+LOG_LEVEL=info
+```
+
+### Installation
+
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/notification-service.git
+   cd notification-service
+   ```
+
+2. Install dependencies
+   ```
+   npm install
+   ```
+
+3. Start the service
+   ```
+   npm run dev
+   ```
+
+### Docker (optional)
+
+```
+docker-compose up -d
+```
+
+## 🏗️ Architecture
+
+```
+notification-service/
+├── src/
+│   ├── config/           # Configuration files
+│   ├── controllers/      # Request handlers
+│   ├── models/           # Database models
+│   ├── routes/           # API routes
+│   ├── services/         # Business logic
+│   ├── workers/          # Background workers
+│   ├── middlewares/      # Express middlewares
+│   ├── app.ts            # Express app setup
+│   └── server.ts         # Entry point
+└── README.md
+```
+
+## 🧪 Testing
+
+```
+npm test
+```
+
+## 📝 License
+
+MIT
+
