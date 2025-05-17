@@ -1,17 +1,17 @@
 
-import Bull, { Queue } from 'bull';
+import Bull from 'bull';
 import { logger } from './logger';
 import { NotificationType } from '../models/Notification';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 // Create individual queues for each notification type
-const emailQueue: Queue = new Bull('email-notifications', REDIS_URL);
-const smsQueue: Queue = new Bull('sms-notifications', REDIS_URL);
-const inAppQueue: Queue = new Bull('in-app-notifications', REDIS_URL);
+const emailQueue = new Bull('email-notifications', REDIS_URL);
+const smsQueue = new Bull('sms-notifications', REDIS_URL);
+const inAppQueue = new Bull('in-app-notifications', REDIS_URL);
 
 // Function to get the appropriate queue based on notification type
-export function getQueueByType(type: NotificationType): Queue {
+export function getQueueByType(type: NotificationType): Bull.Queue {
   switch (type) {
     case NotificationType.EMAIL:
       return emailQueue;
@@ -25,7 +25,7 @@ export function getQueueByType(type: NotificationType): Queue {
 }
 
 // Function to set up queue error handling
-function setupQueueErrorHandling(queue: Queue) {
+function setupQueueErrorHandling(queue: Bull.Queue) {
   queue.on('error', (error) => {
     logger.error(`Queue ${queue.name} error:`, error);
   });
