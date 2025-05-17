@@ -3,5 +3,5 @@
 import * as Bull from 'bull';
 
 declare module 'bull' {
-  export default Bull;
+  export = Bull;
 }

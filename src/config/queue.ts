@@ -1,5 +1,5 @@
 
-import Bull from 'bull';
+import * as Bull from 'bull';
 import { logger } from './logger';
 import { NotificationType } from '../models/Notification';
 
